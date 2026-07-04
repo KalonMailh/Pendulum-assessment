@@ -17,6 +17,7 @@
     "typescript": "^6.0.3"
   },
   "dependencies": {
+    "sat-ts": "^1.0.0",
     "zeromq": "^6.5.0"
   }
 }

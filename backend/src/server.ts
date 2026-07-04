@@ -1,7 +1,8 @@
 // Server
 
 // Import class
-import { Publisher, Subscriber } from "zeromq"
+import { Publisher, Subscriber } from "zeromq";
+import { Circle, Vector, Response, testCircleCircle } from "sat-ts";
 import { Pendulum } from "./Pendulum";
 import { Point2D } from "./Point2D";
 
@@ -71,6 +72,12 @@ async function listenToPeers()
                     continue;
 
                 console.log(` -> Received Peer Data: Pendulum #${data.id} is at X:${data.x.toFixed(2)} and have radius:${data.r}`);
+
+
+                // Call detection collisions
+                const otherPendulumPosition: Point2D = { x: data.x, y: data.y };
+                collisionDetection(otherPendulumPosition, data.r);
+
             }
             catch (parseErr)
             {
@@ -122,3 +129,25 @@ initNetwork().then(() =>
 {
     console.error("Failed to initialize network layer", err);
 });
+
+
+async function collisionDetection(pendulumPosition: Point2D, pendulumRadius: number)
+{
+    if (!pendulumPosition || pendulumRadius === 0)
+        return;
+
+    const pos = myPendulum.getGlobalPosition();
+    var response = new Response();
+
+    // create circle
+    const thisPendulumPosition = new Circle(new Vector(pos.x, pos.y), PENDULUM_RADIUS);
+    const externalPendulumPosition = new Circle(new Vector(pendulumPosition.x, pendulumPosition.y), pendulumRadius);
+
+    // test collision
+    if (testCircleCircle(thisPendulumPosition, externalPendulumPosition, response))
+    {
+        console.log(`COLLISION: Pendule #${PENDULUM_ID} a touché un autre pendule !`);
+        process.exit(0);
+    }
+}
+
