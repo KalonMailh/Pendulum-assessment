@@ -26,16 +26,14 @@ const myPendulum = new Pendulum(PENDULUM_ID, PENDULUM_INIT_ANGLE, PENDULUM_LENGT
 
 
 
-// Ports ZeroMQ //
-const ZMQ_PUB_PORT = Number(process.env.ZMQ_PUB_PORT) || 4001;
-// Get list of others server ports
-const PEER_PORTS_STR = process.env.PEER_PORTS || "";
-const PEER_PORTS = PEER_PORTS_STR ? PEER_PORTS_STR.split(",").map(Number) : [];
+// Connexions au Proxy Central
+const PROXY_IN_PORT = Number(process.env.PROXY_IN_PORT) || 4001;  // On envoie ici
+const PROXY_OUT_PORT = Number(process.env.PROXY_OUT_PORT) || 4005; // On écoute ici
 
 const pubSocket = new Publisher();
 const subSocket = new Subscriber();
 
-console.log(`Starting on HTTP port ${PORT} | ZMQ Pub: ${ZMQ_PUB_PORT}`);
+console.log(`PROXY_IN_PORT: #${PROXY_IN_PORT} and PROXY_OUT_PORT:#${PROXY_OUT_PORT}`);
 
 //////////
 
@@ -46,13 +44,9 @@ console.log(`Starting on HTTP port ${PORT} | ZMQ Pub: ${ZMQ_PUB_PORT}`);
 async function initNetwork()
 {
     // Publisher binding
-    await pubSocket.bind(`tcp://127.0.0.1:${ZMQ_PUB_PORT}`);
+    pubSocket.connect(`tcp://127.0.0.1:${PROXY_IN_PORT}`);
+    subSocket.connect(`tcp://127.0.0.1:${PROXY_OUT_PORT}`);
 
-    // connection
-    for (const peerPort of PEER_PORTS)
-    {
-        subSocket.connect(`tcp://127.0.0.1:${peerPort}`);
-    }
     // subscribe to everything
     subSocket.subscribe("");
 
@@ -69,8 +63,13 @@ async function listenToPeers()
             if (!msg || msg.length === 0)
                 continue;
 
-            try {
+            try
+            {
                 const data = JSON.parse(msg.toString());
+
+                if (data.id === PENDULUM_ID)
+                    continue;
+
                 console.log(` -> Received Peer Data: Pendulum #${data.id} is at X:${data.x.toFixed(2)} and have radius:${data.r}`);
             }
             catch (parseErr)
