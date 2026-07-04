@@ -39,11 +39,25 @@ export class Pendulum {
     /**
      * Calculate X, Y Local position
      */
-    public getLocalPosition()
+    public getLocalPosition(): Point2D
     {
         return {
             x: this.length * Math.sin(this.angle),
             y: this.length * Math.cos(this.angle)
+        };
+    }
+
+    /**
+   * This applies the anchor translation to the local coordinates
+   */
+    public getGlobalPosition(): Point2D
+    {
+        const local = this.getLocalPosition();
+
+        // We shift the local coordinates by adding the anchor's X and Y
+        return {
+            x: local.x + this.anchor.x,
+            y: local.y + this.anchor.y
         };
     }
 }
