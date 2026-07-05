@@ -1,49 +1,63 @@
 // Server
 
-// Import class
+// ==========================================
+// IMPORTS
 import { Publisher, Subscriber } from "zeromq";
 import { Circle, Vector, Response, testCircleCircle } from "sat-ts";
 import { Pendulum } from "./Pendulum";
 import { Point2D } from "./Point2D";
+import pm2 from 'pm2';
 
+// ==========================================
+// CONFIGURATION & ENVIRONMENT VARIABLES
 
-// Environment variables Pendulum
+// Network instance port for this specific server
 const PORT = Number(process.env.PORT) || 3001;
+
+// Anchor position and physical properties of the pendulum
+const ANCHOR_X = Number(process.env.ANCHOR_X) || 0;
+const ANCHOR_Y = Number(process.env.ANCHOR_Y) || 0;
 const PENDULUM_ID = Number(process.env.PENDULUM_ID) || 1;
 const PENDULUM_INIT_ANGLE = Number(process.env.PENDULUM_INIT_ANGLE) || 1;
 const PENDULUM_LENGTH = Number(process.env.PENDULUM_LENGTH) || 1;
 const PENDULUM_MASS = Number(process.env.PENDULUM_MASS) || 1;
-const PENDULUM_RADIUS = Number(process.env.PENDULUM_RADIUS) || 1;
-const ANCHOR_X = Number(process.env.ANCHOR_X) || 0;
-const ANCHOR_Y = Number(process.env.ANCHOR_Y) || 0;
+const PENDULUM_RADIUS = Number(process.env.PENDULUM_RADIUS) || 1; // Used as the bounding radius for collisions
+
+// ==========================================
+// PHYSICS ENGINE PARAMETERS
+
+const FPS = 60;
+const deltaTime = 1 / FPS; // Approximately 0.0166 seconds
+
+// ==========================================
+// PHYSICAL OBJECTS INSTANTIATION
 
 const pendulumAnchor: Point2D = { x: ANCHOR_X, y: ANCHOR_Y };
-
-// Variables
-const FPS = 60;
-const deltaTime = 1 / FPS; // 0.0166 secondes
-
 const myPendulum = new Pendulum(PENDULUM_ID, PENDULUM_INIT_ANGLE, PENDULUM_LENGTH, PENDULUM_MASS, pendulumAnchor);
 
+// ==========================================
+// NETWORK CONFIGURATION (ZeroMQ Proxy)
 
-
-// Connetions with Proxy
 const PROXY_IN_PORT = Number(process.env.PROXY_IN_PORT) || 4001;
 const PROXY_OUT_PORT = Number(process.env.PROXY_OUT_PORT) || 4005;
 
 const pubSocket = new Publisher();
 const subSocket = new Subscriber();
 
-console.log(`PROXY_IN_PORT: #${PROXY_IN_PORT} and PROXY_OUT_PORT:#${PROXY_OUT_PORT}`);
+console.log(`[Network] Configured Proxy Ports -> IN (Pub): #${PROXY_IN_PORT} | OUT (Sub): #${PROXY_OUT_PORT}`);
 
-// Status
+// ==========================================
+// STATE MANAGEMENT & SYNCHRONIZATION
+
+// Local simulation loop states
 let isSimulationRunning = true;
 let loopInterval: NodeJS.Timeout | null = null;
 
+// Cluster Memory
 // For tracking who sent RESTART
-const serverReadyToRestart = new Set<number>();
-// list of server known
 const serverKnown = new Set<number>();
+// list of server known
+const serverReadyToRestart = new Set<number>();
 
 
 // ZeroMQ Network initialisation
@@ -286,5 +300,32 @@ async function collisionDetection(pendulumPosition: Point2D, pendulumRadius: num
         console.log(`COLLISION: Pendule #${PENDULUM_ID}!`);
         handleLocalStop(true);
     }
+}
+
+// START cluster
+function startCluster() {
+    pm2.connect((err) => {
+        if (err) {
+            console.error(err);
+            return;
+        }
+
+        pm2.start('ecosystem.config.js', (err, apps) => {
+            pm2.disconnect();
+            if (err) console.error("Error during cluster launch", err);
+        });
+    });
+}
+
+// STOP cluster
+function stopCluster() {
+    pm2.connect((err) => {
+        if (err) return;
+
+        pm2.stop('ecosystem.config.js', (err) => {
+            pm2.disconnect();
+            if (err) console.error("Erreur during cluster stop", err);
+        });
+    });
 }
 
