@@ -1,15 +1,18 @@
 import { Button, Stack } from '@mui/material';
 
 function App() {
-    const handleStartClick = () => {
+    async function onStartButtonClicked()
+    {
         console.log("Start button clicked!");
     };
 
-    const handlePauseClick = () => {
+    async function onPauseButtonClicked()
+    {
         console.log("Pause button clicked!");
     };
 
-    const handleStopClick = () => {
+    async function onStopButtonClicked()
+    {
         console.log("Stop button clicked!");
     };
 
@@ -21,19 +24,19 @@ function App() {
                 <Button
                     variant="contained"
                     color="success"
-                    onClick={handleStartClick}
+                    onClick={onStartButtonClicked}
                     size="large">
                     Start Simulation
                 </Button>
                 <Button
                     variant="contained"
-                    onClick={handlePauseClick}>
+                    onClick={onPauseButtonClicked}>
                     PAUSE
                 </Button>
                 <Button
                     variant="outlined"
                     color="error"
-                    onClick={handleStopClick}
+                    onClick={onStopButtonClicked}
                     size="large">
                     STOP
                 </Button>

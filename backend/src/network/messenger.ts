@@ -40,7 +40,6 @@ export class Messenger
         }
     }
 
-    // Version dédiée à l'envoi des coordonnées physiques du pendule (utilisée dans la boucle)
     async sendStatusMessage(payload: object)
     {
         try

@@ -19,7 +19,8 @@ messenger.initNetwork((topic, msg) =>
         if (data.id === CONFIG.PENDULUM.ID)
             return;
 
-        switch (topic) {
+        switch (topic)
+        {
             case "pendulum_system":
                 coordinator.handlePeerSystemMessage(data.type, data.id);
                 break;

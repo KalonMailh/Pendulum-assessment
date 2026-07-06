@@ -15,7 +15,7 @@ export const CONFIG =
         INIT_ANGLE: Number(process.env.PENDULUM_INIT_ANGLE) || 1,
         LENGTH: Number(process.env.PENDULUM_LENGTH) || 1,
         MASS: Number(process.env.PENDULUM_MASS) || 1,
-        RADIUS: Number(process.env.PENDULUM_RADIUS) || 1 // Used as the bounding radius for collisions
+        RADIUS: Number(process.env.PENDULUM_RADIUS) || 1
     },
 
     // NETWORK CONFIGURATION (ZeroMQ Proxy)

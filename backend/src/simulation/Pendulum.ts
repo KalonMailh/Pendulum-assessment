@@ -1,6 +1,7 @@
 import { Point2D } from "./Point2D";
 
-export class Pendulum {
+export class Pendulum
+{
     public id: number;          // pendulum id for next steps
     public angle: number;        // radians
     public angularVelocity: number = 0; // (rad/s)
@@ -48,8 +49,8 @@ export class Pendulum {
     }
 
     /**
-   * This applies the anchor translation to the local coordinates
-   */
+    * This applies the anchor translation to the local coordinates
+    */
     public getGlobalPosition(): Point2D
     {
         const local = this.getLocalPosition();

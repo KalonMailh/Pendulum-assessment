@@ -1,6 +1,7 @@
 import { XPublisher, XSubscriber } from "zeromq";
 
-async function runProxy() {
+async function runProxy()
+{
     const xsub = new XSubscriber();
     const xpub = new XPublisher();
 
@@ -9,12 +10,16 @@ async function runProxy() {
     await xpub.bind("tcp://127.0.0.1:4005");
 
     // Forward messages from servers (XSUB) to listeners (XPUB)
-    const forwardData = async () => {
-        for await (const frames of xsub) {
-            try {
+    const forwardData = async () =>
+    {
+        for await (const frames of xsub)
+        {
+            try
+            {
                 await xpub.send(frames);
             }
-            catch (parseErr) {
+            catch (parseErr)
+            {
                 console.warn(`Failed to forward message:`, parseErr);
             }
         }

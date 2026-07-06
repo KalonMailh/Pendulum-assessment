@@ -98,31 +98,59 @@ export class SimulationCoordinator
         this.checkAllPeersReady();
     }
 
+    handlePause()
+    {
+        if (!this.isSimulationRunning)
+            return;
 
-    handlePeerSystemMessage(type: "STOP" | "RESTART", peerId: number)
+        this.isSimulationRunning = false;
+
+        // TODO : Implement PAUSE
+    }
+
+    handlePlay()
+    {
+        if (this.isSimulationRunning)
+            return;
+
+        this.start();
+    }
+
+
+    handlePeerSystemMessage(type: "STOP" | "RESTART" | "PAUSE" | "PLAY", peerId: number)
     {
         this.serverKnown.add(peerId);
 
-        if (type === "STOP")
-        {
-            this.handleStop(false);
-        }
-        else if (type === "RESTART")
-        {
-            console.log(` -> Received RESTART signal from Node #${peerId}`);
+        switch (type) {
+            case "STOP":
+                this.handleStop(false);
+                break;
 
-            // If I haven't broadcasted my own RESTART readiness yet, do it now
-            if (!this.serverReadyToRestart.has(CONFIG.PENDULUM.ID))
-            {
-                console.log(`Acknowledging master restart. Sending my RESTART...`);
+            case "PAUSE":
+                console.log(` -> Received PAUSE signal from Node #${peerId}`);
+                this.handlePause();
+                break;
 
-                this.messenger.sendSystemMessage("RESTART");
-                this.serverReadyToRestart.add(CONFIG.PENDULUM.ID);
-            }
+            case "PLAY":
+                console.log(` -> Received PLAY signal from Node #${peerId}`);
+                this.handlePlay();
+                break;
 
-            // Register the peer as ready for the countdown
-            this.serverReadyToRestart.add(peerId);
-            this.checkAllPeersReady();
+            case "RESTART":
+                console.log(` -> Received RESTART signal from Node #${peerId}`);
+
+                // If I haven't broadcasted my own RESTART readiness yet, do it now
+                if (!this.serverReadyToRestart.has(CONFIG.PENDULUM.ID)) {
+                    console.log(`Acknowledging master restart. Sending my RESTART...`);
+
+                    this.messenger.sendSystemMessage("RESTART");
+                    this.serverReadyToRestart.add(CONFIG.PENDULUM.ID);
+                }
+
+                // Register the peer as ready for the countdown
+                this.serverReadyToRestart.add(peerId);
+                this.checkAllPeersReady();
+                break;
         }
     }
 
