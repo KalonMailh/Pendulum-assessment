@@ -36,3 +36,26 @@ To view the UI components locally (isolated from live data for now), spin up the
 
 	Bash
 	npm run dev
+```
+
+## 🤖 AI Assistant Disclaimer
+
+An AI assistant was used during this project as an architectural sounding board. The tool was leveraged to validate network protocol trade-offs, design a multi-process orchestration strategy, and accelerate structural refactoring.
+
+### Engineering Workflow & Key Prompts:
+
+1. **Network Protocol Evaluation (UDP vs. Alternatives for Telemetry)**
+   *Context: Initial architectural reflection on choosing the right transport layer to broadcast physical coordinates in real-time with maximum scalabilty and minimal latency.*
+   * **Prompt:** *"Pour synchroniser en temps réel un cluster de pendules, je pensais partir sur un réseau UDP pour garantir la scalabilité et éviter l'overhead de TCP. Quels sont les protocoles ou bibliothèques modernes qui me permettraient de gérer ça proprement sans réinventer la roue sur la fiabilité des messages ?"*
+
+2. **Cluster Orchestration & Multi-Process Architecture (PM2 Setup)**
+   *Context: Designing a scalable runtime environment where each pendulum runs in an isolated OS process rather than multi-threading inside a single instance.*
+   * **Prompt:** *"Je souhaite instancier mes 5 nœuds de simulation de manière isolée pour simuler un vrai cluster distribué. Comment configurer un orchestrateur comme PM2 via un fichier `ecosystem.config.js` pour injecter dynamiquement des variables d'environnement uniques (IDs, coordonnées d'ancres) à chaque processus au démarrage ?"*
+
+3. **Backend Refactoring & Structural Decoupling**
+   *Context: Migrating the initial network-heavy proof of concept into a clean, modular, and maintainable Object-Oriented architecture.*
+   * **Prompt:** *"Je veux isoler proprement la logique réseau ZeroMQ dans une classe `Messenger` et confier la gestion d'état et la boucle physique à un `SimulationCoordinator`. Comment structurer le lien entre ces deux composants ?"*
+
+4. **State Machine Extension (Play / Pause / Synchronized Stop)**
+   *Context: Implementing cluster-wide barrier synchronization mechanisms when a collision or external event occurs.*
+   * **Prompt:** *"Comment concevoir les transitions d'états dans mon coordinateur pour différencier un `PAUSE` purement local (gel de la physique) d'un `STOP` global distribué qui doit forcer tous les nœuds à se synchroniser avant un restart ?"*
