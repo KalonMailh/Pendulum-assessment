@@ -5,7 +5,7 @@ module.exports = {
         {
             name: 'ZMQ-Central-Proxy',
             script: './node_modules/tsx/dist/cli.mjs',
-            args: 'src/proxy.ts',
+            args: 'src/network/proxy.ts',
             cwd: './backend', 
             exec_mode: 'fork',
             watch: false,
