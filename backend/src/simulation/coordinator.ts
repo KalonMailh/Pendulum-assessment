@@ -53,6 +53,8 @@ export class SimulationCoordinator
                 type: "STATUS",
                 x: pos.x,
                 y: pos.y,
+                anchorX: CONFIG.PENDULUM.ANCHOR_X,
+                anchorY: CONFIG.PENDULUM.ANCHOR_Y,
                 r: CONFIG.PENDULUM.RADIUS,
                 timestamp: Date.now()
             };
@@ -61,7 +63,6 @@ export class SimulationCoordinator
             await this.messenger.sendStatusMessage(payload);
         }, CONFIG.PHYSICS.DELTA_TIME * 1000);
     }
-
     
     handleStop(triggeredByMe: boolean)
     {
@@ -76,7 +77,7 @@ export class SimulationCoordinator
             this.loopInterval = null;
         }
 
-        console.log(`\nHALTED (${triggeredByMe ? "Triggered locally" : "Triggered by an other server"})`);
+        console.log(`\nHALTED #${CONFIG.PENDULUM.ID} : (${triggeredByMe ? "Triggered locally by me" : "Triggered by an other server"})`);
 
         // If triggered by me, broadcast to the network and request a delayed cluster restart sequence
         if (triggeredByMe)
@@ -173,7 +174,7 @@ export class SimulationCoordinator
             // Execute Collision Check
             if (testCircleCircle(thisCircle, externalCircle, response))
             {
-                console.log(`Intersect detected with Pendulum #${data.id}!`);
+                console.log(`Intersect detected with Pendulum #${data.id} with me #${CONFIG.PENDULUM.ID}!`);
                 this.handleStop(true); 
             }
         }
