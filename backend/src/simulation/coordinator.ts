@@ -99,6 +99,16 @@ export class SimulationCoordinator
         this.checkAllPeersReady();
     }
 
+    handleStopReset()
+    {
+        if (!this.isSimulationRunning)
+            return;
+
+        this.isSimulationRunning = false;
+
+        // TODO : Implement STOP_PAUSE
+    }
+
     handlePause()
     {
         if (!this.isSimulationRunning)
@@ -118,13 +128,18 @@ export class SimulationCoordinator
     }
 
 
-    handlePeerSystemMessage(type: "STOP" | "RESTART" | "PAUSE" | "PLAY", peerId: number)
+    handlePeerSystemMessage(type: "STOP" | "STOP_RESET" | "RESTART" | "PAUSE" | "PLAY", peerId: number)
     {
         this.serverKnown.add(peerId);
 
         switch (type) {
             case "STOP":
                 this.handleStop(false);
+                break;
+
+            case "STOP_RESET":
+                console.log(` -> Received STOP_RESET signal from Node #${peerId}`);
+                this.handleStopReset();
                 break;
 
             case "PAUSE":

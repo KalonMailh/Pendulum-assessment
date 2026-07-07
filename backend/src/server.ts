@@ -83,22 +83,44 @@ messenger.initNetwork((topic, msg) => {
 
         console.log(`WebSocket Server running on port 8081 (Node 1 Hub)`);
 
+        let isSimulationPaused = false;
+
         // HTTP Server (API for Play / Pause buttons)
         const app = express();
         app.use(cors());
         app.use(express.json());
 
+        // PAUSE
         app.post("/api/simulation/pause", (req, res) =>
         {
-            console.log("[API] HTTP Request: PAUSE cluster");
-            messenger.sendSystemMessage("PAUSE");
+            if (!isSimulationPaused)
+            {
+                console.log("[API] HTTP Request: TOGGLE -> PAUSE cluster");
+                messenger.sendSystemMessage("PAUSE");
+            }
+            else
+            {
+                console.log("[API] HTTP Request: TOGGLE -> RESUME cluster");
+                messenger.sendSystemMessage("PLAY"); // Tu peux intercepter RESUME ou START selon ton choix au back
+            }
             res.sendStatus(200);
         });
 
+        // RESTART / START : Lance ou relance la physique
         app.post("/api/simulation/restart", (req, res) =>
         {
-            console.log("[API] HTTP Request: RESTART cluster");
+            console.log("[API] HTTP Request: START simulation physics");
+            isSimulationPaused = false;
             messenger.sendSystemMessage("RESTART");
+            res.sendStatus(200);
+        });
+
+        // STOP : Arrête la physique et réinitialise les positions d'origine
+        app.post("/api/simulation/stop", (req, res) =>
+        {
+            console.log("[API] HTTP Request: STOP & RESET cluster");
+            isSimulationPaused = false;
+            messenger.sendSystemMessage("STOP_RESET");
             res.sendStatus(200);
         });
 

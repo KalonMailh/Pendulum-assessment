@@ -26,7 +26,7 @@ export class Messenger
     }
 
     // Sending message
-    async sendSystemMessage(type: "STOP" | "RESTART" | "PAUSE" | "START")
+    async sendSystemMessage(type: "STOP" | "STOP_RESET" | "RESTART" | "PAUSE" | "PLAY")
     {
         const payload = { id: CONFIG.PENDULUM.ID, type: type, timestamp: Date.now() };
 

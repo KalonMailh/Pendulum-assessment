@@ -1,10 +1,12 @@
 import { Button, Stack } from '@mui/material';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 function App() {
     // References declaration
     const canvasRef = useRef(null);
     const activePendulums = useRef(new Map());
+
+    const [isPaused, setIsPaused] = useState(false);
 
     // HTTP sending functions linked to buttons
     async function onStartButtonClicked()
@@ -16,25 +18,17 @@ function App() {
     async function onPauseButtonClicked()
     {
         console.log("Pause button clicked!");
+        setIsPaused((prev) => !prev);
         await sendControl('pause');
     }
 
     async function onStopButtonClicked()
     {
         console.log("Stop button clicked!");
-
-        // If you configured a /api/simulation/stop route on the backend:
-        try
-        {
-            await fetch(`http://localhost:4000/api/simulation/stop`, { method: 'POST' });
-        }
-        catch (err)
-        {
-            console.error("STOP command error:", err);
-        }
+        await sendControl('stop');
     }
 
-    // Generic fetch function (cleaned from TypeScript typing for the .jsx file)
+    // Generic fetch function
     const sendControl = async (action) =>
     {
         try
@@ -43,7 +37,7 @@ function App() {
         }
         catch (err)
         {
-            console.error("HTTP command error:", err);
+            console.error(`HTTP command error (${action}):`, err);
         }
     };
 
@@ -166,9 +160,11 @@ function App() {
                 </Button>
                 <Button
                     variant="contained"
+                    color={isPaused ? "warning" : "primary"}
                     onClick={onPauseButtonClicked}
-                    size="large">
-                    PAUSE
+                    size="large"
+                    style={{ minWidth: '120px' }}>
+                    {isPaused ? "RESUME" : "PAUSE"}
                 </Button>
                 <Button
                     variant="outlined"
